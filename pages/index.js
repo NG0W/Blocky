@@ -1,57 +1,42 @@
 import Head from "next/head";
 import Image from "next/image";
+import config from "../utils/config";
 import styles from "../styles/Home.module.css";
 import { useState, useEffect } from "react";
 import { TezosToolkit } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
-import config from "../utils/config";
-import {
-  connectWallet,
-  disconnectWallet,
-  getActiveAccount,
-  checkIfWalletConnected,
-} from "../utils/wallet";
+import { connectWallet, disconnectWallet, getActiveAccount, checkIfWalletConnected } from "../utils/wallet";
 
 export default function Home() {
-  const [formInput, updateFormInput] = useState("next");
+  const [formInput, updateFormInput] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [wallet, setWallet] = useState(null);
-  // const rpc = "https://rpc.ghostnet.teztnets.xyz/";
   const Tezos = new TezosToolkit(config.rpc);
   const options = {
     name: "Blocky",
     iconUrl: config.logo,
     preferredNetwork: config.network,
   };
+
   const isConnectWallet = async () => {
     const { wallet } = await connectWallet();
     setWallet(wallet);
   };
+
   const getStorage = async () => {
-    let contract = await Tezos.contract.at(
-      "KT1WdFvUhwFzEsrQzsL7uhYAubQECnktVvge"
-    );
+    let contract = await Tezos.contract.at("KT1WdFvUhwFzEsrQzsL7uhYAubQECnktVvge");
     let storage = await contract.storage();
-    console.log(storage);
     contract = await Tezos.contract.at("KT19mTC36Mt27bP2UbekgF4seffMoWAQxgdB");
     storage = await contract.storage();
-    console.log(storage);
   };
 
   const mintNFT = async () => {
     const Tezos = new TezosToolkit(config.rpc);
     Tezos.setWalletProvider(wallet);
-    console.log(wallet);
-    // const contract = await Tezos.wallet.at(config.NFTcontractAddress);
-    const contract = await Tezos.contract.at(
-      "KT19mTC36Mt27bP2UbekgF4seffMoWAQxgdB"
-    );
+    const contract = await Tezos.contract.at("KT19mTC36Mt27bP2UbekgF4seffMoWAQxgdB");
     const storage = await contract.storage();
-    console.log(storage);
-    // const op = await contract.methods.mint().send();
-    // await op.confirmation();
-    console.log("hEeere");
   };
+
   return (
     <div className={styles.container}>
       <Head>
@@ -74,11 +59,7 @@ export default function Home() {
           onChange={(e) => updateFormInput(e.target.value)}
         />
 
-        {!wallet ? (
-          <button onClick={isConnectWallet}>Connect Wallet</button>
-        ) : (
-          <p>Your address : {wallet}</p>
-        )}
+        {!wallet ? (<button onClick={isConnectWallet}>Connect Wallet</button>) : (<p>Your address : {wallet}</p>)}
 
         <button onClick={getStorage}>Get storage</button>
 
@@ -121,5 +102,5 @@ export default function Home() {
         */}
       </main>
     </div>
-  );
+  )
 }

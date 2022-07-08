@@ -3,7 +3,7 @@ export default function Navbar({}) {
     <div>
       <nav id="navbar">
         <span id="responsive-menu">
-          <ul className="menu">
+          <ul class="menu">
             <li id="marketplace">
               <a href="#">Marketplace</a>
             </li>
@@ -20,5 +20,5 @@ export default function Navbar({}) {
         </span>
       </nav>
     </div>
-  );
+  )
 }

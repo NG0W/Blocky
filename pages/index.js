@@ -39,12 +39,17 @@ export default function Home() {
   };
 
   const mintNFT = async () => {
+    const Tezos = new TezosToolkit(config.rpc);
     Tezos.setWalletProvider(wallet);
-
-    const contract = await Tezos.wallet.at(config.NFTcontractAddress);
-    console.log(contract);
-    const op = await contract.methods.mint().send();
-    await op.confirmation();
+    console.log(wallet);
+    // const contract = await Tezos.wallet.at(config.NFTcontractAddress);
+    const contract = await Tezos.contract.at(
+      "KT19mTC36Mt27bP2UbekgF4seffMoWAQxgdB"
+    );
+    const storage = await contract.storage();
+    console.log(storage);
+    // const op = await contract.methods.mint().send();
+    // await op.confirmation();
     console.log("hEeere");
   };
   return (

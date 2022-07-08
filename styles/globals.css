@@ -47,7 +47,7 @@ a {
   background-color: var(--light-purple);
 }
 
-.menu li {
+.menu li, button {
   position: relative;
   margin: 10px 10px;
   transition: 0.2s;

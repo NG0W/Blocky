@@ -5,53 +5,61 @@ import { useState, useEffect } from "react";
 import { TezosToolkit } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import config from "../utils/config";
-import {
-  connectWallet,
-  disconnectWallet,
-  getActiveAccount,
-  checkIfWalletConnected,
-} from "../utils/wallet";
 
 export default function Home() {
   const [formInput, updateFormInput] = useState("next");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [wallet, setWallet] = useState(null);
-  // const rpc = "https://rpc.ghostnet.teztnets.xyz/";
-  const Tezos = new TezosToolkit(config.rpc);
-  const options = {
-    name: "Blocky",
-    iconUrl: config.logo,
-    preferredNetwork: config.network,
-  };
-  const isConnectWallet = async () => {
-    const { wallet } = await connectWallet();
-    setWallet(wallet);
-  };
-  const getStorage = async () => {
-    let contract = await Tezos.contract.at(
-      "KT1WdFvUhwFzEsrQzsL7uhYAubQECnktVvge"
-    );
-    let storage = await contract.storage();
-    console.log(storage);
-    contract = await Tezos.contract.at("KT19mTC36Mt27bP2UbekgF4seffMoWAQxgdB");
-    storage = await contract.storage();
-    console.log(storage);
+  const rpc = "https://rpc.jakartanet.teztnets.xyz/";
+  // const rpc = "https://jakartanet.tezos.marigold.dev/";
+  const network = "jakartanet";
+  const setAuth = (boolean) => {
+    setIsAuthenticated(boolean);
   };
 
-  const mintNFT = async () => {
-    const Tezos = new TezosToolkit(config.rpc);
-    Tezos.setWalletProvider(wallet);
+  async function connect_wallet() {
+    const Tezos = new TezosToolkit(rpc);
+    const options = {
+      name: "Blocky",
+      iconUrl:
+        "https://img.lovepik.com/free-png/20220125/lovepik-real-estate-building-logo-png-image_401737177_wh860.png",
+      preferredNetwork: network,
+    };
+    const wallet = new BeaconWallet(options);
     console.log(wallet);
-    // const contract = await Tezos.wallet.at(config.NFTcontractAddress);
-    const contract = await Tezos.contract.at(
-      "KT19mTC36Mt27bP2UbekgF4seffMoWAQxgdB"
-    );
-    const storage = await contract.storage();
-    console.log(storage);
-    // const op = await contract.methods.mint().send();
-    // await op.confirmation();
-    console.log("hEeere");
-  };
+
+    try {
+      console.log("Requesting permissions...");
+      const permissions = await wallet.client.requestPermissions({
+        network: { type: network },
+      });
+      console.log("Got permissions:", permissions.address);
+      permissions.address !== "undefined"
+        ? setIsAuthenticated(permissions.address)
+        : setIsAuthenticated(false);
+    } catch (error) {
+      console.log("Got error:", error);
+    }
+    Tezos.setWalletProvider(wallet);
+
+    Tezos.wallet
+      .at(config.NFTcontractAddress)
+      .then((contract) => {
+        const i = 7;
+
+        console.log(`Incrementing storage value by ${i}...`);
+        return contract.methods.increment(i).send();
+      })
+      .then((op) => {
+        console.log(`Waiting for ${op.hash} to be confirmed...`);
+        return op.confirmation(3).then(() => op.hash);
+      })
+      .then((hash) =>
+        console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`)
+      )
+      .catch((error) =>
+        console.log(`Error: ${JSON.stringify(error, null, 2)}`)
+      );
+  }
   return (
     <div className={styles.container}>
       <Head>
@@ -73,16 +81,12 @@ export default function Home() {
           placeholder="Description"
           onChange={(e) => updateFormInput(e.target.value)}
         />
-
-        {!wallet ? (
-          <button onClick={isConnectWallet}>Connect Wallet</button>
+        {!isAuthenticated ? (
+          <button onClick={connect_wallet}>Connect Wallet</button>
         ) : (
-          <p>Your address : {wallet}</p>
+          <p>Your address : {isAuthenticated}</p>
         )}
 
-        <button onClick={getStorage}>Get storage</button>
-
-        {wallet ? <button onClick={mintNFT}>Mint NFT</button> : ""}
         {/*
         <p className={styles.description}>
           Get started by editing{' '}

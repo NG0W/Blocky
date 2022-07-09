@@ -15,19 +15,26 @@ const getActiveAccount = async () => {
 };
 
 const connectWallet = async () => {
-  let account = await wallet.client.getActiveAccount();
-  console.log("here");
-  if (!account) {
+  const Tezos = new TezosToolkit(config.rpc);
+  const options = { 
+    name: "Blocky", 
+    iconUrl: 
+      "https://img.lovepik.com/free-png/20220125/lovepik-real-estate-building-logo-png-image_401737177_wh860.png", 
+    preferredNetwork: config.network, 
+  };
+  const wallet = new BeaconWallet(options);
+  console.log(wallet); 
+  const perm = null;
+  try { 
     console.log("Requesting permissions...");
-    console.log(config.network);
     const permissions = await wallet.client.requestPermissions({
       network: { type: config.network },
     });
     console.log("Got permissions:", permissions.address);
-    account = await wallet.client.getActiveAccount();
+  } catch (error) { 
+    console.log("Got error:", error);
   }
-  console.log(account.address);
-  return { success: true, wallet: account.address };
+  return { success: true, wallet: perm };
 };
 
 const disconnectWallet = async () => {

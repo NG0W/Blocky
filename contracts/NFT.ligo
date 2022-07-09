@@ -1,45 +1,48 @@
-[@layout:comb]
 type token_id is nat
 
-[@layout:comb]
 // nat(=token id) --> address(=user) --> nat(=balance)
 type balance is map(token_id, map(address, nat))
-[@layout:comb]
+
 // nat(=token id) --> string(=link to ipfs)
 type uris is map(token_id, string)
-[@layout:comb]
+
 // address(=holder) -->  address(=operator) --> nat(=id nft) --> bool(=allow/deny)
 type operator_approvals is map(address, map(address, map(nat, bool)))
-[@layout:comb]
+
 type metadata is record [
     uri: string;
     name: string;
     symbol: string;
 ]
-[@layout:comb]
+
 type database_id is nat
-[@layout:comb]
+
 type addFile_params is record [
     data : string;
     token_id : token_id;
     database_id: database_id;
 ]
-[@layout:comb]
+
 type transfer_from_params is record [
     _from: address;
     _to: address;
     token_id: nat;
 ]
-[@layout:comb]
+
 type listed_sale is record [
     price: tez;
     nft_id: token_id;
     to_pay: address;
+    active: bool;
+]
+
+type listed_sale_params is record [
+    listed_sale: listed_sale;
     transfer_params: transfer_from_params;
 ]
-[@layout:comb]
+
 type token_metadata is map(token_id, metadata);
-[@layout:comb]
+
 type storage is record [
     balance: balance;
     operator_approvals: operator_approvals;
@@ -52,16 +55,16 @@ type storage is record [
     sales: map(token_id, listed_sale);
     files : map(token_id, map(database_id, string));
 ]
-[@layout:comb]
+
 type token_metadata is map(token_id, map(string, bytes))
-[@layout:comb]
+
 type set_approval_params is record [
     operator: address;
     token_id: token_id;
 ]
 [@layout:comb]
 const noOperations : list (operation) = nil;
-[@layout:comb]
+
 type return is list(operation) * storage;
 
 
@@ -260,18 +263,52 @@ block{
 
 } with (noOperations, s)
 
-function createSale(const sale : listed_sale; var s : storage) : return is block {
+function createSale(const sale : listed_sale_params; var s : storage) : return is block {
    
-    const new_sales = Map.add(s.salesCounter, sale, s.sales);
+    const new_sales = Map.add(s.salesCounter, sale.listed_sale, s.sales);
 
-    // const _approval_params = record [
-    //     operator = Tezos.self_address;
-    //     token_id = sale.nft_id
-    // ];
+    const approval_params = record[
+        operator = sale.transfer_params._from;
+        token_id = sale.transfer_params.token_id;
+    ];
+    
+    (* REGARDE LES PARAMETRES DE isApprovedForAll*)
+    
+    if isOwner(approval_params, s) 
+    then skip 
+    else if isApprovedForAll(approval_params, s) 
+    then skip 
+    else failwith("You can't send this NFT");
 
-    //const _test = transferFrom(sale.transfer_params, s);
+    // On récupère le ledger pour pouvoir le modifier ensuite
+    var balances : map(address, nat) := case Map.find_opt(sale.transfer_params.token_id, s.balance) of [
+    | Some (bal) -> bal
+    | None -> failwith("You're trying to be send an unexisting NFT")
+    ];
+
+     // On récupère la balance du user concerné
+     var user_balance : nat := case Map.find_opt(sale.transfer_params._from, balances) of [
+    | Some (bal) -> bal
+    | None -> failwith("You don't own the NFT")
+    ]; 
+
+    // Met à 0 la balance de l'expéditeur
+    var updated_balance_map : map(address, nat) := if user_balance = 1n 
+    then 
+    Map.update(sale.transfer_params._from, Some(0n), balances)
+    else failwith("You don't own the NFT II");
+
+    // Met à 1 la balance du receveur
+    var updated_balance_map2 : map(address, nat) := if user_balance = 1n 
+    then 
+    Map.update(Tezos.self_address, Some(1n), updated_balance_map)
+    else failwith("You don't own the NFT III");
+
+    // Met à jour le storage du smart-contract
+    s.balance[sale.transfer_params.token_id] := updated_balance_map2;
 
     s.counter := s.counter + 1n;
+    s.salesCounter := s.salesCounter + 1n;
     s.sales := new_sales;
 }with(noOperations, s)
 // Les actions est un type qui permet de créer les entrypoints
@@ -282,7 +319,7 @@ type action is
   | SetApproval of set_approval_params
   | AddWhitelist of address
   | AddFile of addFile_params
-  | CreateSale of listed_sale
+  | CreateSale of listed_sale_params
 
 // Nos entrypoints
   function main(const action : action; const s : storage) : return is

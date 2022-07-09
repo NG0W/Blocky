@@ -36,12 +36,13 @@ export default function CreateItem() {
       const added = await client.add(data)
       const url = `https://ipfs.infura.io/ipfs/${added.path}`
       createSale(url)
-    } catch(error){
+    } catch(error) {
       console.log(e)
     }
   }
 
-  async function createSale(uri){
+  async function createSale(uri) {
+    {/* TODO */}
   }
 
   return (

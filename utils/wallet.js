@@ -7,7 +7,6 @@ const options = {
   iconUrl: "https://tezostaquito.io/img/favicon.png",
   preferredNetwork: preferredNetwork,
 };
-const rpcURL = "https://hangzhounet.smartpy.io";
 const wallet = new BeaconWallet(options);
 
 const getActiveAccount = async () => {
@@ -18,8 +17,7 @@ const connectWallet = async () => {
   const Tezos = new TezosToolkit(config.rpc);
   const options = { 
     name: "Blocky", 
-    iconUrl: 
-      "https://img.lovepik.com/free-png/20220125/lovepik-real-estate-building-logo-png-image_401737177_wh860.png", 
+    iconUrl: config.logo, 
     preferredNetwork: config.network, 
   };
   const wallet = new BeaconWallet(options);
@@ -27,9 +25,7 @@ const connectWallet = async () => {
   const perm = null;
   try { 
     console.log("Requesting permissions...");
-    const permissions = await wallet.client.requestPermissions({
-      network: { type: config.network },
-    });
+    const permissions = await wallet.client.requestPermissions({ network: { type: config.network } });
     console.log("Got permissions:", permissions.address);
   } catch (error) { 
     console.log("Got error:", error);
@@ -46,18 +42,11 @@ const checkIfWalletConnected = async (wallet) => {
   try {
     const activeAccount = await wallet.client.getActiveAccount();
     if (!activeAccount) {
-      await wallet.client.requestPermissions({
-        type: { network: preferredNetwork },
-      });
+      await wallet.client.requestPermissions({ type: { network: preferredNetwork } });
     }
-    return {
-      success: true,
-    };
+    return { success: true };
   } catch (error) {
-    return {
-      success: false,
-      error,
-    };
+    return { success: false, error };
   }
 };
 

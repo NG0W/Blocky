@@ -8,7 +8,6 @@ import { BeaconWallet } from "@taquito/beacon-wallet";
 import { connectWallet, disconnectWallet, getActiveAccount, checkIfWalletConnected } from "../utils/wallet";
 
 export default function Home() {
-  const [formInput, updateFormInput] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [wallet, setWallet] = useState(null);
   const network = "jakartanet";
@@ -68,11 +67,12 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
+        {!isAuthenticated ? (<button onClick={isConnectWallet}>Connect Wallet</button>) : (<p>Your address : {isAuthenticated}</p>)}
+        {wallet ? <button onClick={mintNFT}>Mint NFT</button> : ""}
+        
+        {/*
         <h1 className={styles.title}>
-          Welcome to{" "}
-          <a id={formInput} href="https://nextjs.org">
-            Next.js!
-          </a>
+          Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
 
         <input
@@ -81,9 +81,6 @@ export default function Home() {
           onChange={(e) => updateFormInput(e.target.value)}
         />
 
-        {!isAuthenticated ? (<button onClick={isConnectWallet}>Connect Wallet</button>) : (<p>Your address : {isAuthenticated}</p>)}
-        {wallet ? <button onClick={mintNFT}>Mint NFT</button> : ""}
-        {/*
         <p className={styles.description}>
           Get started by editing{' '}
           <code className={styles.code}>pages/index.js</code>

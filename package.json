@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "@taquito/beacon-wallet": "^13.0.1",
+    "@taquito/signer": "^13.0.0",
     "@taquito/taquito": "^13.0.1",
+    "dotenv": "^16.0.1",
+    "ipfs-http-client": "^50.1.2",
     "next": "12.2.0",
     "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "ipfs-http-client": "^50.1.2"
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
     "eslint": "8.19.0",

@@ -4,3 +4,4 @@ node_modules
 *.log
 .next/*
 package-lock.json
+trash.txt

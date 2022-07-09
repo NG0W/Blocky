@@ -311,6 +311,71 @@ function createSale(const sale : listed_sale_params; var s : storage) : return i
     s.salesCounter := s.salesCounter + 1n;
     s.sales := new_sales;
 }with(noOperations, s)
+
+function buySale(const id : nat; var s : storage) : return is block {
+
+// type listed_sale is record [
+//     price: tez;
+//     nft_id: token_id;
+//     to_pay: address;
+//     active: bool;
+// ]
+    const sale = case Map.find_opt(id, s.sales) of [
+        | Some(sale) -> sale
+        | None -> failwith("This sale doesn't exist")
+    ];
+
+    // const approval_params = record[
+    //     operator = Tezos.self_address;
+    //     token_id = sale.nft_id;
+    // ];
+
+    if sale.active then skip else failwith("This sale isn't active anymore");
+    if sale.price = Tezos.amount then skip else failwith("The amount of tez is incorrect");
+
+    // if isOwner(approval_params, s) 
+    // then skip
+    // else if isApprovedForAll(approval_params, s) 
+    // then skip 
+    // else failwith("You can't send this NFT");
+
+    // On récupère le ledger pour pouvoir le modifier ensuite
+    var balances : map(address, nat) := case Map.find_opt(id, s.balance) of [
+    | Some (bal) -> bal
+    | None -> failwith("You're trying to be send an unexisting NFT")
+    ];
+
+     // On récupère la balance du user concerné
+     var user_balance : nat := case Map.find_opt(Tezos.self_address, balances) of [
+    | Some (bal) -> bal
+    | None -> failwith("You don't own the NFT")
+    ]; 
+
+    // Met à 0 la balance de l'expéditeur
+    var updated_balance_map : map(address, nat) := if user_balance = 1n 
+    then 
+    Map.update(Tezos.self_address, Some(0n), balances)
+    else failwith("You don't own the NFT II");
+
+    // Met à 1 la balance du receveur
+    var updated_balance_map2 : map(address, nat) := if user_balance = 1n 
+    then 
+    Map.update(Tezos.sender, Some(1n), updated_balance_map)
+    else failwith("You don't own the NFT III");
+
+    // Met à jour le storage du smart-contract
+    s.balance[id] := updated_balance_map2;
+
+    const vendor_contract : contract (unit) =
+      case (Tezos.get_contract_opt (sale.to_pay) : option (contract (unit))) of[
+        |Some (c) -> c
+        | None -> (failwith ("Contract not found.") : contract (unit))
+      ];
+      const operations : list(operation) = list[
+           Tezos.transaction (unit, sale.price, vendor_contract)
+      ];
+ 
+} with (operations, s)
 // Les actions est un type qui permet de créer les entrypoints
 type action is 
   | Mint of metadata
@@ -320,6 +385,7 @@ type action is
   | AddWhitelist of address
   | AddFile of addFile_params
   | CreateSale of listed_sale_params
+  | Buy of nat
 
 // Nos entrypoints
   function main(const action : action; const s : storage) : return is
@@ -331,4 +397,5 @@ type action is
     | AddWhitelist(addr) -> addWhitelist(addr, s)
     | AddFile(files) -> addFile(files, s)
     | CreateSale(sale)-> createSale(sale, s)
+    | Buy(sale_id) -> buySale(sale_id, s)
   ]

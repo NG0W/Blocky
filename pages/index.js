@@ -11,30 +11,52 @@ export default function Home() {
   const [formInput, updateFormInput] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [wallet, setWallet] = useState(null);
-  const Tezos = new TezosToolkit(config.rpc);
-  const options = {
-    name: "Blocky",
-    iconUrl: config.logo,
-    preferredNetwork: config.network,
+  const network = "jakartanet";
+  const setAuth = (str) => {
+    setIsAuthenticated(str);
   };
 
   const isConnectWallet = async () => {
     const { wallet } = await connectWallet();
+    setAuth(wallet.address);
     setWallet(wallet);
-  };
-
-  const getStorage = async () => {
-    let contract = await Tezos.contract.at("KT1WdFvUhwFzEsrQzsL7uhYAubQECnktVvge");
-    let storage = await contract.storage();
-    contract = await Tezos.contract.at("KT19mTC36Mt27bP2UbekgF4seffMoWAQxgdB");
-    storage = await contract.storage();
+    console.log("wallet", wallet);
   };
 
   const mintNFT = async () => {
     const Tezos = new TezosToolkit(config.rpc);
+    const options = {
+      name: "Blocky",
+      iconUrl: "https://img.lovepik.com/free-png/20220125/lovepik-real-estate-building-logo-png-image_401737177_wh860.png",
+      preferredNetwork: config.network,
+    };
+    const wallet = new BeaconWallet(options);
+    console.log(wallet);
+    
+    try {
+      console.log("Requesting permissions...");
+      const permissions = await wallet.client.requestPermissions({
+        network: { type: network },
+      });
+      console.log("Got permissions:", permissions.address);
+      permissions.address !== "undefined" ? setIsAuthenticated(permissions.address) : setIsAuthenticated(false);
+    } catch (error) {
+      console.log("Got error:", error);
+    }
     Tezos.setWalletProvider(wallet);
-    const contract = await Tezos.contract.at("KT19mTC36Mt27bP2UbekgF4seffMoWAQxgdB");
-    const storage = await contract.storage();
+
+    Tezos.wallet
+      .at(config.NFTcontractAddress)
+      .then((contract) => {
+        console.log(`Incrementing storage value by ...`);
+        return contract.methods.mint("oui", "oui", "oui").send();
+      })
+      .then((op) => {
+        console.log(`Waiting for ${op.hash} to be confirmed...`);
+        return op.confirmation(3).then(() => op.hash);
+      })
+      .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
+      .catch((error) => console.log("error : ", error));
   };
 
   return (
@@ -59,10 +81,7 @@ export default function Home() {
           onChange={(e) => updateFormInput(e.target.value)}
         />
 
-        {!wallet ? (<button onClick={isConnectWallet}>Connect Wallet</button>) : (<p>Your address : {wallet}</p>)}
-
-        <button onClick={getStorage}>Get storage</button>
-
+        {!isAuthenticated ? (<button onClick={isConnectWallet}>Connect Wallet</button>) : (<p>Your address : {isAuthenticated}</p>)}
         {wallet ? <button onClick={mintNFT}>Mint NFT</button> : ""}
         {/*
         <p className={styles.description}>

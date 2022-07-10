@@ -42,7 +42,7 @@ export default function CreateItem() {
       const nftid = Number(meta[0].substr(1, 1));
       sold.includes(nftid) ? nfts.push(uri) : '';
     }
-    console.log
+    console.log(nfts)
     setStorageWallet(storage)
   }
 

@@ -1,78 +1,141 @@
-import { useState, Image } from "react"
-import { create as ipfsHttpClient } from "ipfs-http-client"
-import { useRouter } from 'next/router'
-
-const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0")
+import { create as ipfsHttpClient } from "ipfs-http-client";
+import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
+import { TezosToolkit } from "@taquito/taquito";
+import { BeaconWallet } from "@taquito/beacon-wallet";
+import config from "../utils/config";
+import {
+  connectWallet,
+  disconnectWallet,
+  getActiveAccount,
+  checkIfWalletConnected,
+} from "../utils/wallet";
+const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
 export default function CreateItem() {
-  const [fileUrl, setFileURL] = useState(null)
-  const [formInput,  updateFormInput] = useState({name: "", symbol: ""})
-  const router = useRouter()
+  const [fileUrl, setFileURL] = useState(null);
+  const [formInput, updateFormInput] = useState({ name: "", symbol: "" });
+  const [wallet, setWallet] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  const router = useRouter();
+  const setAuth = (str) => {
+    setIsAuthenticated(str);
+  };
+  const isConnectWallet = async () => {
+    const { wallet } = await connectWallet();
+    setAuth(wallet.address);
+    setWallet(wallet);
+    console.log("wallet", wallet);
+  };
   async function onFileUpload(event) {
-    const file = event.target.files[0]
+    const file = event.target.files[0];
 
     try {
-        const added = await client.add(file, {
-          progress: (prog) => console.log(`received: ${prog}`)
-        }
-      )
-      const url = `https://ipfs.infura.io/ipfs/${added.path}`
-      setFileURL(url)
-    } catch(error) {
-      console.log(e)
+      const added = await client.add(file, {
+        progress: (prog) => console.log(`received: ${prog}`),
+      });
+      const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+      setFileURL(url);
+    } catch (error) {
+      console.log(e);
     }
   }
 
   async function createItem() {
-    const {name, symbol} = formInput
+    console.log("here");
+    // const { name, symbol } = formInput;
 
-    if(!name || !symbol || !fileUrl) return
-    const data = JSON.stringify({
-      name, symbol, image: fileUrl
-    })
+    // if (!name || !symbol || !fileUrl) return;
+    // const data = JSON.stringify({
+    //   name,
+    //   symbol,
+    //   image: fileUrl,
+    // });
+
+    // try {
+    //   const added = await client.add(data);
+    //   const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+    //   createSale(url);
+    // } catch (error) {
+    //   console.log(e);
+    // }
+    console.log("laaa");
+    const Tezos = new TezosToolkit(config.rpc);
+    const options = {
+      name: "Blocky",
+      iconUrl:
+        "https://img.lovepik.com/free-png/20220125/lovepik-real-estate-building-logo-png-image_401737177_wh860.png",
+      preferredNetwork: config.network,
+    };
+    const wallet = new BeaconWallet(options);
+    console.log(wallet);
 
     try {
-      const added = await client.add(data)
-      const url = `https://ipfs.infura.io/ipfs/${added.path}`
-      createSale(url)
-    } catch(error) {
-      console.log(e)
+      console.log("Requesting permissions...");
+      const permissions = await wallet.client.requestPermissions({
+        network: { type: network },
+      });
+      console.log("Got permissions:", permissions.address);
+      permissions.address !== "undefined"
+        ? setIsAuthenticated(permissions.address)
+        : setIsAuthenticated(false);
+    } catch (error) {
+      console.log("Got error:", error);
     }
+    Tezos.setWalletProvider(wallet);
+
+    Tezos.wallet
+      .at(config.NFTcontractAddress)
+      .then((contract) => {
+        console.log(`Incrementing storage value by ...`);
+        return contract.methods.mint("oui", "oui", "oui").send();
+      })
+      .then((op) => {
+        console.log(`Waiting for ${op.hash} to be confirmed...`);
+        return op.confirmation(3).then(() => op.hash);
+      })
+      .then((hash) =>
+        console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`)
+      )
+      .catch((error) => console.log("error : ", error));
   }
 
   async function createSale(uri) {
-    {/* TODO */}
+    {
+      /* TODO */
+    }
   }
 
   return (
     <div className="flex justify-center">
       <div className="w-1/2 flex flex-col pb-12">
         <input
-        placeholder="Name"
-        className="mt-8 border rounded p-4"
-        onChange={e => updateFormInput({...formInput, name: e.target.value})}
+          placeholder="Name"
+          className="mt-8 border rounded p-4"
+          onChange={(e) =>
+            updateFormInput({ ...formInput, name: e.target.value })
+          }
         />
-
         <input
-        placeholder="Symbol"
-        className="mt-8 border rounded p-4"
-        onChange={e => updateFormInput({...formInput, symbol: e.target.value})}
+          placeholder="Symbol"
+          className="mt-8 border rounded p-4"
+          onChange={(e) =>
+            updateFormInput({ ...formInput, symbol: e.target.value })
+          }
         />
-
         <input
-        type="file"
-        name="Asset"
-        className="my-4"
-        onChange={onFileUpload}
+          type="file"
+          name="Asset"
+          className="my-4"
+          onChange={onFileUpload}
         />
-
-        <button
-        onClick={createItem}
-        className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
-          Create NFT
-        </button>
+        {wallet ? (
+          <button onClick={createItem}>Mint NFT</button>
+        ) : (
+          <button onClick={isConnectWallet}>Connect Wallet</button>
+        )}{" "}
       </div>
     </div>
-  )
+  );
 }

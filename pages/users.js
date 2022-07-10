@@ -14,8 +14,6 @@ export default function displayUsers() {
         getUsers()
     }, [])
 
-    console.log(users)
-
     return (
         <div style={{ padding: 30 }}>
             <div>
@@ -25,15 +23,6 @@ export default function displayUsers() {
                         <p className='text-gray-400'> {user[1].id} </p>
                         <p className='text-2xl mb-4 font-bold text-white'> {user[1].surname} </p>
                         <p className='text-2xl mb-4 font-bold text-white'> {user[1].name} </p>
-                        {/*
-                        <Image
-                            src={user[1].link}
-                            width="350px"
-                            height="330px"
-                        />
-                        <button className='w-full bg-pink-500 text-white font-bold py-2 px-12 rounded'
-                        onClick={() => bidnft(user[1])}> Bid </button>
-                        */}
                     </div>
                 </div>
                 ))

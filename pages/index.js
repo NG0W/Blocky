@@ -5,16 +5,24 @@ import styles from "../styles/Home.module.css";
 import { useState, useEffect } from "react";
 import { TezosToolkit } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
-import { connectWallet, disconnectWallet, getActiveAccount, checkIfWalletConnected } from "../utils/wallet";
+import {
+  connectWallet,
+  disconnectWallet,
+  getActiveAccount,
+  checkIfWalletConnected,
+} from "../utils/wallet";
 
 export default function Home() {
+  const [formInput, updateFormInput] = useState("next");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [wallet, setWallet] = useState(null);
+
+  const rpc = "https://rpc.jakartanet.teztnets.xyz/";
+  // const rpc = "https://jakartanet.tezos.marigold.dev/";
   const network = "jakartanet";
   const setAuth = (str) => {
     setIsAuthenticated(str);
   };
-
   const isConnectWallet = async () => {
     const { wallet } = await connectWallet();
     setAuth(wallet.address);
@@ -26,19 +34,22 @@ export default function Home() {
     const Tezos = new TezosToolkit(config.rpc);
     const options = {
       name: "Blocky",
-      iconUrl: "https://img.lovepik.com/free-png/20220125/lovepik-real-estate-building-logo-png-image_401737177_wh860.png",
+      iconUrl:
+        "https://img.lovepik.com/free-png/20220125/lovepik-real-estate-building-logo-png-image_401737177_wh860.png",
       preferredNetwork: config.network,
     };
     const wallet = new BeaconWallet(options);
     console.log(wallet);
-    
+
     try {
       console.log("Requesting permissions...");
       const permissions = await wallet.client.requestPermissions({
         network: { type: network },
       });
       console.log("Got permissions:", permissions.address);
-      permissions.address !== "undefined" ? setIsAuthenticated(permissions.address) : setIsAuthenticated(false);
+      permissions.address !== "undefined"
+        ? setIsAuthenticated(permissions.address)
+        : setIsAuthenticated(false);
     } catch (error) {
       console.log("Got error:", error);
     }
@@ -54,7 +65,9 @@ export default function Home() {
         console.log(`Waiting for ${op.hash} to be confirmed...`);
         return op.confirmation(3).then(() => op.hash);
       })
-      .then((hash) => console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`))
+      .then((hash) =>
+        console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`)
+      )
       .catch((error) => console.log("error : ", error));
   };
 
@@ -67,9 +80,13 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        {!isAuthenticated ? (<button onClick={isConnectWallet}>Connect Wallet</button>) : (<p>Your address : {isAuthenticated}</p>)}
+        {!isAuthenticated ? (
+          <button onClick={isConnectWallet}>Connect Wallet</button>
+        ) : (
+          <p>Your address : {isAuthenticated}</p>
+        )}
         {wallet ? <button onClick={mintNFT}>Mint NFT</button> : ""}
-        
+
         {/*
         <h1 className={styles.title}>
           Welcome to <a href="https://nextjs.org">Next.js!</a>
@@ -118,5 +135,5 @@ export default function Home() {
         */}
       </main>
     </div>
-  )
+  );
 }

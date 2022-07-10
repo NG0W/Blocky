@@ -1,12 +1,13 @@
 import { TezosToolkit } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import config from "./config";
-const preferredNetwork = config.network;
+const preferredNetwork = "hangzhounet";
 const options = {
   name: "NFT",
   iconUrl: "https://tezostaquito.io/img/favicon.png",
   preferredNetwork: preferredNetwork,
 };
+const rpcURL = "https://hangzhounet.smartpy.io";
 const wallet = new BeaconWallet(options);
 
 const getActiveAccount = async () => {
@@ -15,19 +16,23 @@ const getActiveAccount = async () => {
 
 const connectWallet = async () => {
   const Tezos = new TezosToolkit(config.rpc);
-  const options = { 
-    name: "Blocky", 
-    iconUrl: config.logo, 
-    preferredNetwork: config.network, 
+  const options = {
+    name: "Blocky",
+    iconUrl:
+      "https://img.lovepik.com/free-png/20220125/lovepik-real-estate-building-logo-png-image_401737177_wh860.png",
+    preferredNetwork: config.network,
   };
   const wallet = new BeaconWallet(options);
-  console.log(wallet); 
+  console.log(wallet);
   const perm = null;
-  try { 
+  try {
     console.log("Requesting permissions...");
-    const permissions = await wallet.client.requestPermissions({ network: { type: config.network } });
+    const permissions = await wallet.client.requestPermissions({
+      network: { type: config.network },
+    });
     console.log("Got permissions:", permissions.address);
-  } catch (error) { 
+    perm = permissions;
+  } catch (error) {
     console.log("Got error:", error);
   }
   return { success: true, wallet: perm };
@@ -42,11 +47,18 @@ const checkIfWalletConnected = async (wallet) => {
   try {
     const activeAccount = await wallet.client.getActiveAccount();
     if (!activeAccount) {
-      await wallet.client.requestPermissions({ type: { network: preferredNetwork } });
+      await wallet.client.requestPermissions({
+        type: { network: preferredNetwork },
+      });
     }
-    return { success: true };
+    return {
+      success: true,
+    };
   } catch (error) {
-    return { success: false, error };
+    return {
+      success: false,
+      error,
+    };
   }
 };
 

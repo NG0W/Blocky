@@ -13,7 +13,8 @@ import {
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
 export default function CreateItem() {
-  const [fileUrl, setFileURL] = useState(null);
+  const [fileUrl, setFileURL] = useState("");
+  const [metadataUrl, setMetadataUrl] = useState("null");
   const [formInput, updateFormInput] = useState({ name: "", symbol: "" });
   const [wallet, setWallet] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -22,12 +23,14 @@ export default function CreateItem() {
   const setAuth = (str) => {
     setIsAuthenticated(str);
   };
+
   const isConnectWallet = async () => {
     const { wallet } = await connectWallet();
     setAuth(wallet.address);
     setWallet(wallet);
     console.log("wallet", wallet);
   };
+
   async function onFileUpload(event) {
     const file = event.target.files[0];
 
@@ -44,23 +47,28 @@ export default function CreateItem() {
 
   async function createItem() {
     console.log("here");
-    // const { name, symbol } = formInput;
+    const { name, symbol } = formInput;
 
-    // if (!name || !symbol || !fileUrl) return;
-    // const data = JSON.stringify({
-    //   name,
-    //   symbol,
-    //   image: fileUrl,
-    // });
-
-    // try {
-    //   const added = await client.add(data);
-    //   const url = `https://ipfs.infura.io/ipfs/${added.path}`;
-    //   createSale(url);
-    // } catch (error) {
-    //   console.log(e);
-    // }
+    console.log("form input "+formInput)
+    if (!name || !symbol || !fileUrl) return;
+    const data = JSON.stringify({
+      name,
+      symbol,
+      image: fileUrl,
+    });
+    console.log("data : " + data)
+    console.log("data : " + formInput.name)
+    try {
+      const added = await client.add(data);
+      // const url = ;
+      // console.log("URL " + url)
+      setMetadataUrl(`https://ipfs.infura.io/ipfs/${added.path}`);
+      console.log("url des metadatas : " + metadataUrl)
+    } catch (error) {
+      console.log(e);
+    }
     console.log("laaa");
+
     const Tezos = new TezosToolkit(config.rpc);
     const options = {
       name: "Blocky",
@@ -74,7 +82,7 @@ export default function CreateItem() {
     try {
       console.log("Requesting permissions...");
       const permissions = await wallet.client.requestPermissions({
-        network: { type: network },
+        network: { type: config.network },
       });
       console.log("Got permissions:", permissions.address);
       permissions.address !== "undefined"
@@ -88,64 +96,70 @@ export default function CreateItem() {
     Tezos.wallet
       .at(config.NFTcontractAddress)
       .then((contract) => {
-        console.log(`Incrementing storage value by ...`);
-        return contract.methods.mint("oui", "oui", "oui").send();
+        console.log("Data.name = ", data.name)
+        console.log("Data.symbol = ", data.symbol)
+        console.log("Data.fileUrl = ", data.fileUrl)
+        return contract.methods.mint(
+          formInput.name, 
+          formInput.symbol, 
+          metadataUrl).send();
       })
       .then((op) => {
         console.log(`Waiting for ${op.hash} to be confirmed...`);
         return op.confirmation(3).then(() => op.hash);
       })
       .then((hash) =>
-        console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`)
+        console.log(`Operation injected: https://jakarta.tzstats.com/${hash}`)
       )
       .catch((error) => console.log("error : ", error));
   }
-  async function createSale() {
-    console.log("laaa");
-    const Tezos = new TezosToolkit(config.rpc);
-    const options = {
-      name: "Blocky",
-      iconUrl:
-        "https://img.lovepik.com/free-png/20220125/lovepik-real-estate-building-logo-png-image_401737177_wh860.png",
-      preferredNetwork: config.network,
-    };
-    const wallet = new BeaconWallet(options);
-    console.log(wallet);
+  // async function createSale() {
+  //   console.log("laaa");
+  //   const Tezos = new TezosToolkit(config.rpc);
+  //   const options = {
+  //     name: "Blocky",
+  //     iconUrl:
+  //       "https://img.lovepik.com/free-png/20220125/lovepik-real-estate-building-logo-png-image_401737177_wh860.png",
+  //     preferredNetwork: config.network,
+  //   };
 
-    try {
-      console.log("Requesting permissions...");
-      const permissions = await wallet.client.requestPermissions({
-        network: { type: network },
-      });
-      console.log("Got permissions:", permissions.address);
-      permissions.address !== "undefined"
-        ? setIsAuthenticated(permissions.address)
-        : setIsAuthenticated(false);
-    } catch (error) {
-      console.log("Got error:", error);
-    }
-    Tezos.setWalletProvider(wallet);
+  //   const wallet = new BeaconWallet(options);
+  //   console.log(wallet);
 
-    Tezos.wallet
-      .at(config.NFTcontractAddress)
-      .then((contract) => {
-        console.log(`Incrementing storage value by ...`);
-        return contract.methods
-          .createSale(2, {
-            amount: 50000000,
-            to: "tz1W7QTkztWhg9sj5fTu5jdrHKWPqDDd2pUM",
-          })
-          .send();
-      })
-      .then((op) => {
-        console.log(`Waiting for ${op.hash} to be confirmed...`);
-        return op.confirmation(3).then(() => op.hash);
-      })
-      .then((hash) =>
-        console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`)
-      )
-      .catch((error) => console.log("error : ", error));
-  }
+  //   try {
+  //     console.log("Requesting permissions...");
+  //     const permissions = await wallet.client.requestPermissions({
+  //       network: { type: network },
+  //     });
+  //     console.log("Got permissions:", permissions.address);
+  //     permissions.address !== "undefined"
+  //       ? setIsAuthenticated(permissions.address)
+  //       : setIsAuthenticated(false);
+  //   } catch (error) {
+  //     console.log("Got error:", error);
+  //   }
+  //   Tezos.setWalletProvider(wallet);
+
+  //   Tezos.wallet
+  //     .at(config.NFTcontractAddress)
+  //     .then((contract) => {
+  //       console.log(`Incrementing storage value by ...`);
+  //       return contract.methods
+  //         .createSale(2, {
+  //           amount: 50000000,
+  //           to: "tz1W7QTkztWhg9sj5fTu5jdrHKWPqDDd2pUM",
+  //         })
+  //         .send();
+  //     })
+  //     .then((op) => {
+  //       console.log(`Waiting for ${op.hash} to be confirmed...`);
+  //       return op.confirmation(3).then(() => op.hash);
+  //     })
+  //     .then((hash) =>
+  //       console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`)
+  //     )
+  //     .catch((error) => console.log("error : ", error));
+  // }
 
   return (
     <div className="flex justify-center">
@@ -175,11 +189,11 @@ export default function CreateItem() {
         ) : (
           <button onClick={isConnectWallet}>Connect Wallet</button>
         )}{" "}
-        {wallet ? (
+        {/* {wallet ? (
           <button onClick={createSale}>Create sale</button>
         ) : (
           <button onClick={isConnectWallet}>Connect Wallet</button>
-        )}
+        )} */}
       </div>
     </div>
   );

@@ -1,25 +1,17 @@
 import Head from "next/head";
-import Image from "next/image";
 import config from "../utils/config";
 import styles from "../styles/Home.module.css";
 import { useState, useEffect } from "react";
 import { TezosToolkit } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
-import {
-  connectWallet,
-  disconnectWallet,
-  getActiveAccount,
-  checkIfWalletConnected,
-} from "../utils/wallet";
+import { connectWallet, disconnectWallet, getActiveAccount, checkIfWalletConnected } from "../utils/wallet";
 
 export default function Home() {
-  const [formInput, updateFormInput] = useState("next");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [wallet, setWallet] = useState(null);
 
-  const rpc = "https://rpc.jakartanet.teztnets.xyz/";
-  // const rpc = "https://jakartanet.tezos.marigold.dev/";
-  const network = "jakartanet";
+  const rpc = config.rpc;
+  const network = config.network;
   const setAuth = (str) => {
     setIsAuthenticated(str);
   };
@@ -34,8 +26,7 @@ export default function Home() {
     const Tezos = new TezosToolkit(config.rpc);
     const options = {
       name: "Blocky",
-      iconUrl:
-        "https://img.lovepik.com/free-png/20220125/lovepik-real-estate-building-logo-png-image_401737177_wh860.png",
+      iconUrl: config.logo,
       preferredNetwork: config.network,
     };
     const wallet = new BeaconWallet(options);

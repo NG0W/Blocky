@@ -76,8 +76,7 @@ export default function CreateItem() {
     const Tezos = new TezosToolkit(config.rpc);
     const options = {
       name: "Blocky",
-      iconUrl:
-        "https://img.lovepik.com/free-png/20220125/lovepik-real-estate-building-logo-png-image_401737177_wh860.png",
+      iconUrl: config.logo,
       preferredNetwork: config.network,
     };
     const wallet = new BeaconWallet(options);
@@ -89,9 +88,7 @@ export default function CreateItem() {
         network: { type: config.network },
       });
       console.log("Got permissions:", permissions.address);
-      permissions.address !== "undefined"
-        ? setIsAuthenticated(permissions.address)
-        : setIsAuthenticated(false);
+      permissions.address !== "undefined" ? setIsAuthenticated(permissions.address) : setIsAuthenticated(false);
     } catch (error) {
       console.log("Got error:", error);
     }
@@ -116,53 +113,6 @@ export default function CreateItem() {
       )
       .catch((error) => console.log("error : ", error));
   }
-  // async function createSale() {
-  //   console.log("laaa");
-  //   const Tezos = new TezosToolkit(config.rpc);
-  //   const options = {
-  //     name: "Blocky",
-  //     iconUrl:
-  //       "https://img.lovepik.com/free-png/20220125/lovepik-real-estate-building-logo-png-image_401737177_wh860.png",
-  //     preferredNetwork: config.network,
-  //   };
-
-  //   const wallet = new BeaconWallet(options);
-  //   console.log(wallet);
-
-  //   try {
-  //     console.log("Requesting permissions...");
-  //     const permissions = await wallet.client.requestPermissions({
-  //       network: { type: network },
-  //     });
-  //     console.log("Got permissions:", permissions.address);
-  //     permissions.address !== "undefined"
-  //       ? setIsAuthenticated(permissions.address)
-  //       : setIsAuthenticated(false);
-  //   } catch (error) {
-  //     console.log("Got error:", error);
-  //   }
-  //   Tezos.setWalletProvider(wallet);
-
-  //   Tezos.wallet
-  //     .at(config.NFTcontractAddress)
-  //     .then((contract) => {
-  //       console.log(`Incrementing storage value by ...`);
-  //       return contract.methods
-  //         .createSale(2, {
-  //           amount: 50000000,
-  //           to: "tz1W7QTkztWhg9sj5fTu5jdrHKWPqDDd2pUM",
-  //         })
-  //         .send();
-  //     })
-  //     .then((op) => {
-  //       console.log(`Waiting for ${op.hash} to be confirmed...`);
-  //       return op.confirmation(3).then(() => op.hash);
-  //     })
-  //     .then((hash) =>
-  //       console.log(`Operation injected: https://ithaca.tzstats.com/${hash}`)
-  //     )
-  //     .catch((error) => console.log("error : ", error));
-  // }
 
   return (
     <div className="flex justify-center">

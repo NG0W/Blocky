@@ -18,8 +18,7 @@ const connectWallet = async () => {
   const Tezos = new TezosToolkit(config.rpc);
   const options = {
     name: "Blocky",
-    iconUrl:
-      "https://img.lovepik.com/free-png/20220125/lovepik-real-estate-building-logo-png-image_401737177_wh860.png",
+    iconUrl: config.logo,
     preferredNetwork: config.network,
   };
   const wallet = new BeaconWallet(options);
@@ -31,11 +30,10 @@ const connectWallet = async () => {
       network: { type: config.network },
     });
     console.log("Got permissions:", permissions.address);
-    perm = permissions;
   } catch (error) {
     console.log("Got error:", error);
   }
-  return { success: true, wallet: perm };
+  return { success: true, wallet: permissions };
 };
 
 const disconnectWallet = async () => {

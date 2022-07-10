@@ -1,42 +1,44 @@
-import getUsers from "./api/users"
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
+import Image from 'next/image';
 
 export default function displayUsers() {
-    const [users, setUsers] = useState([])
-    const [loadingState, setLoadingState] = useState('not-loaded')
+    const [users, setUsers] = useState([]);
 
-    useEffect(() => { 
-        loadUsers() 
+    async function getUsers() {
+        const get = await fetch("http://localhost:3000/api/assets");
+        const data = await get.json();
+        setUsers(data);
+    }
+  
+    useEffect(() => {
+        getUsers()
     }, [])
 
-    async function loadUsers() {
-        const data = await getUsers()
-        const items = await Promise.all(data.map(i => { 
-            return {
-                id: i.id,
-                name: i.name,
-                surname: i.surname,
-                mail: i.mail
-            }
-        }))
-        setUsers(items)
-        setLoadingState('loaded')
-    }
+    console.log(users)
 
-    if (loadingState === 'loaded' && !users.length) return (
-        <h1 className='px-20 py-10 text-3xl'>No user registered yet.</h1>
-    )
-    
     return (
         <div style={{ padding: 30 }}>
             <div>
-                { users.map(user =>
-                    <div key={ user.id } style={{ padding: 20, borderBottom: '1px solid #ccc' }}>
-                        <h2>{ user.surname } { user.name }</h2>
-                        <p>{ user.mail }</p>
+            { users.map((user) => (
+                <div key={user[1].id} className="border shadow rounded-xl overflow-hidden">
+                    <div>
+                        <p className='text-gray-400'> {user[1].id} </p>
+                        <p className='text-2xl mb-4 font-bold text-white'> {user[1].surname} </p>
+                        <p className='text-2xl mb-4 font-bold text-white'> {user[1].name} </p>
+                        {/*
+                        <Image
+                            src={user[1].link}
+                            width="350px"
+                            height="330px"
+                        />
+                        <button className='w-full bg-pink-500 text-white font-bold py-2 px-12 rounded'
+                        onClick={() => bidnft(user[1])}> Bid </button>
+                        */}
                     </div>
-                )}
+                </div>
+                ))
+            }
             </div>
         </div>
-    )
+    );
 }

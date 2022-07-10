@@ -314,30 +314,13 @@ function createSale(const sale : listed_sale_params; var s : storage) : return i
 
 function buySale(const id : nat; var s : storage) : return is block {
 
-// type listed_sale is record [
-//     price: tez;
-//     nft_id: token_id;
-//     to_pay: address;
-//     active: bool;
-// ]
-    const sale = case Map.find_opt(id, s.sales) of [
+    var sale := case Map.find_opt(id, s.sales) of [
         | Some(sale) -> sale
         | None -> failwith("This sale doesn't exist")
     ];
 
-    // const approval_params = record[
-    //     operator = Tezos.self_address;
-    //     token_id = sale.nft_id;
-    // ];
-
     if sale.active then skip else failwith("This sale isn't active anymore");
     if sale.price = Tezos.amount then skip else failwith("The amount of tez is incorrect");
-
-    // if isOwner(approval_params, s) 
-    // then skip
-    // else if isApprovedForAll(approval_params, s) 
-    // then skip 
-    // else failwith("You can't send this NFT");
 
     // On récupère le ledger pour pouvoir le modifier ensuite
     var balances : map(address, nat) := case Map.find_opt(id, s.balance) of [
@@ -374,7 +357,8 @@ function buySale(const id : nat; var s : storage) : return is block {
       const operations : list(operation) = list[
            Tezos.transaction (unit, sale.price, vendor_contract)
       ];
- 
+    sale.active := false;
+    s.sales[id] := sale;
 } with (operations, s)
 // Les actions est un type qui permet de créer les entrypoints
 type action is 

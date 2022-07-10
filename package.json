@@ -13,17 +13,16 @@
     "@taquito/signer": "^13.0.0",
     "@taquito/taquito": "^13.0.1",
     "dotenv": "^16.0.1",
-    "fs": "^0.0.1-security",
     "ipfs-http-client": "^50.1.2",
-    "net": "^1.0.2",
     "next": "^12.2.0",
-    "postgres": "^3.2.4",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "tls": "^0.0.1"
+    "pg": "^8.7.3",
+    "react": "^18.2.0",
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
+    "@types/react": "^18.0.15",
     "eslint": "8.19.0",
-    "eslint-config-next": "12.2.0"
+    "eslint-config-next": "12.2.0",
+    "eslint-plugin-react-hooks": "^4.6.0"
   }
 }

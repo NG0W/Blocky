@@ -1,6 +1,6 @@
-import postgres from 'postgres'
+const { Pool } = require('pg')
 
-const sql = postgres({
+const pool = new Pool({
     host: 'localhost',
     port: 5433,
     user: 'postgres',
@@ -8,4 +8,4 @@ const sql = postgres({
     database: 'ImmoBloc'
 })
 
-export default sql
+module.exports = pool

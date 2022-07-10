@@ -5,10 +5,10 @@ export default function Navbar({}) {
         <span id="responsive-menu">
           <ul className="menu">
             <li id="marketplace">
-              <a href="./#">Marketplace</a>
+              <a href="./marketplace">Marketplace</a>
             </li>
             <li id="collection">
-              <a href="./api/users">Users (pour les tests mdr)</a>
+              <a href="./users">Users</a>
             </li>
             <li id="newnft">
               <a href="./newnft">New NFT</a>

@@ -1,7 +1,7 @@
 import pool from "../../database/db";
 
 export default async function getUsers(req, res) {
-    const query = await pool.query("SELECT * FROM users");
+    const query = await pool.query("SELECT * FROM assets");
     const items = query.rows
     const users = Object.entries(items)
 

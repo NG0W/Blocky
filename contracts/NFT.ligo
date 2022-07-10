@@ -323,7 +323,7 @@ function buySale(const id : nat; var s : storage) : return is block {
     if sale.price = Tezos.amount then skip else failwith("The amount of tez is incorrect");
 
     // On récupère le ledger pour pouvoir le modifier ensuite
-    var balances : map(address, nat) := case Map.find_opt(id, s.balance) of [
+    var balances : map(address, nat) := case Map.find_opt(sale.nft_id, s.balance) of [
     | Some (bal) -> bal
     | None -> failwith("You're trying to be send an unexisting NFT")
     ];
@@ -349,13 +349,13 @@ function buySale(const id : nat; var s : storage) : return is block {
     // Met à jour le storage du smart-contract
     s.balance[id] := updated_balance_map2;
 
-    const vendor_contract : contract (unit) =
+    const to_pay_address : contract (unit) =
       case (Tezos.get_contract_opt (sale.to_pay) : option (contract (unit))) of[
         |Some (c) -> c
         | None -> (failwith ("Contract not found.") : contract (unit))
       ];
       const operations : list(operation) = list[
-           Tezos.transaction (unit, sale.price, vendor_contract)
+           Tezos.transaction (unit, sale.price, to_pay_address)
       ];
     sale.active := false;
     s.sales[id] := sale;

@@ -35,6 +35,7 @@ export default function getMarketplace() {
       sold.push(saleid);
       setPrice(price);
     }
+    console.log(sold)
 
     // Available nfts with sale ids
     const metadatas = storage['token_metadata']['valueMap'];
@@ -89,7 +90,6 @@ export default function getMarketplace() {
   }
 
   useEffect(() => { getContractNFT() }, []);
-  console.log(sold)
 
   return (
     <div style={{ padding: 30 }}>
@@ -100,7 +100,7 @@ export default function getMarketplace() {
               <p className='text-2xl mb-4 font-bold text-white'> {nft.name} </p>
               <p className='text-2xl mb-4 font-bold text-white'> {nft.symbol} </p>
               <p className='text-2xl mb-4 font-bold text-white'><img src={nft.image} className="rounded" width="300px" height="300px"/></p>
-              <button className='w-full bg-pink-500 text-white font-bold py-2 px-12 rounded' onClick={() => createItem(2)}>Buy</button>
+              <button className='w-full bg-pink-500 text-white font-bold py-2 px-12 rounded' onClick={() => createItem(0)}>Buy</button>
             </div>
           </div>
         ))}

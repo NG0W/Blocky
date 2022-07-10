@@ -5,7 +5,7 @@ export default function displayUsers() {
     const [users, setUsers] = useState([]);
 
     async function getUsers() {
-        const get = await fetch("http://localhost:3000/api/assets");
+        const get = await fetch("http://localhost:3000/api/users");
         const data = await get.json();
         setUsers(data);
     }

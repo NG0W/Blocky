@@ -13,6 +13,9 @@ export default function Navbar({}) {
             <li id="newnft">
               <a href="./newnft">New NFT</a>
             </li>
+            <li id="getnft">
+              <a href="./getnft">Get NFT</a>
+            </li>
             <li id="wallet">
               <a href="./#">Wallet</a>
             </li>
@@ -20,5 +23,5 @@ export default function Navbar({}) {
         </span>
       </nav>
     </div>
-  )
+  );
 }

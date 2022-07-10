@@ -40,8 +40,9 @@ export default function CreateItem() {
       });
       const url = `https://ipfs.infura.io/ipfs/${added.path}`;
       setFileURL(url);
+      console.log(url);
     } catch (error) {
-      console.log(e);
+      console.log(error);
     }
   }
 
@@ -49,25 +50,28 @@ export default function CreateItem() {
     console.log("here");
     const { name, symbol } = formInput;
 
-    console.log("form input "+formInput)
+    console.log("form input " + formInput);
     if (!name || !symbol || !fileUrl) return;
     const data = JSON.stringify({
       name,
       symbol,
       image: fileUrl,
     });
-    console.log("data : " + data)
-    console.log("data : " + formInput.name)
+    console.log("data : " + data);
+    console.log("data : " + formInput.name);
     try {
       const added = await client.add(data);
       // const url = ;
       // console.log("URL " + url)
       setMetadataUrl(`https://ipfs.infura.io/ipfs/${added.path}`);
-      console.log("url des metadatas : " + metadataUrl)
+      console.log("url des metadatas : " + metadataUrl);
     } catch (error) {
-      console.log(e);
+      console.log(error);
     }
     console.log("laaa");
+    if (!metadataUrl.startsWith("http")) return;
+    console.log("2 url des metadatas : " + metadataUrl);
+    await new Promise((r) => setTimeout(r, 2000));
 
     const Tezos = new TezosToolkit(config.rpc);
     const options = {
@@ -96,16 +100,15 @@ export default function CreateItem() {
     Tezos.wallet
       .at(config.NFTcontractAddress)
       .then((contract) => {
-        console.log("Data.name = ", data.name)
-        console.log("Data.symbol = ", data.symbol)
-        console.log("Data.fileUrl = ", data.fileUrl)
-        return contract.methods.mint(
-          formInput.name, 
-          formInput.symbol, 
-          metadataUrl).send();
+        console.log("Data.name = ", data.name);
+        console.log("Data.symbol = ", data.symbol);
+        console.log("Data.fileUrl = ", data.fileUrl);
+        return contract.methods
+          .mint(formInput.name, formInput.symbol, metadataUrl)
+          .send();
       })
       .then((op) => {
-        console.log(`Waiting for ${op.hash} to be confirmed...`);
+        console.log(`Waiting for transaction to be confirmed...`);
         return op.confirmation(3).then(() => op.hash);
       })
       .then((hash) =>

@@ -61,14 +61,11 @@ export default function CreateItem() {
     console.log("data : " + formInput.name);
     try {
       const added = await client.add(data);
-      // const url = ;
-      // console.log("URL " + url)
       setMetadataUrl(`https://ipfs.infura.io/ipfs/${added.path}`);
       console.log("url des metadatas : " + metadataUrl);
     } catch (error) {
       console.log(error);
     }
-    console.log("laaa");
     if (!metadataUrl.startsWith("http")) return;
     console.log("2 url des metadatas : " + metadataUrl);
     await new Promise((r) => setTimeout(r, 2000));

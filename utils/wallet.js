@@ -30,10 +30,11 @@ const connectWallet = async () => {
       network: { type: config.network },
     });
     console.log("Got permissions:", permissions.address);
+    perm = permissions
   } catch (error) {
     console.log("Got error:", error);
   }
-  return { success: true, wallet: permissions };
+  return { success: true, wallet: perm };
 };
 
 const disconnectWallet = async () => {

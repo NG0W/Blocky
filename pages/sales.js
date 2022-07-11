@@ -1,11 +1,14 @@
-import { create as ipfsHttpClient } from "ipfs-http-client";
+import config from "../utils/config";
+import styles from "../styles/Home.module.css";
 import { useState, useEffect } from "react";
 import { TezosToolkit } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
-import config from "../utils/config";
+import { create as ipfsHttpClient } from "ipfs-http-client";
 import { connectWallet, disconnectWallet, getActiveAccount, checkIfWalletConnected } from "../utils/wallet";
+import { NotificationResponseMessage } from "pg-protocol/dist/messages";
+const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
-export default function createSale() {
+export default function sales() {
   const [formInput, updateFormInput] = useState({ nftid: "", price: "", topay: "", from: "" });
   const [wallet, setWallet] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -23,7 +26,6 @@ export default function createSale() {
 
   async function newSale() {
     const { nftid, price, topay, from } = formInput;
-    if (!nftid || !price || !topay || !from) return;
 
     const Tezos = new TezosToolkit(config.rpc);
     const options = {
@@ -47,10 +49,10 @@ export default function createSale() {
     Tezos.setWalletProvider(wallet);
 
     const listedSale = {
-      active: true,
-      nft_id: nftid,
       price: price,
-      to_pay: topay
+      nft_id: nftid,
+      to_pay: topay,
+      active: true
     }
 
     const transferParams = {
@@ -62,9 +64,7 @@ export default function createSale() {
     Tezos.wallet
       .at(config.NFTcontractAddress)
       .then((contract) => {
-        return contract.methods
-        .createSale(listedSale, transferParams)
-        .send();
+        return contract.methods.createSale([{listed_sale: listedSale}, {transfer_params: transferParams}]).send();
       })
       .then((op) => {
         console.log(`Waiting for transaction to be confirmed...`);
@@ -100,7 +100,7 @@ export default function createSale() {
           onChange={(e) => updateFormInput({ ...formInput, from: e.target.value })}
         />
         {wallet ? (
-          <button onClick={createSale}>Create Sale</button>
+          <button onClick={newSale}>Create Sale</button>
         ) : (
           <button onClick={isConnectWallet}>Connect Wallet</button>
         )}{" "}

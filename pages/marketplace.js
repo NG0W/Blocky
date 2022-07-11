@@ -10,12 +10,8 @@ import { NotificationResponseMessage } from "pg-protocol/dist/messages";
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
 export default function getMarketplace() {
-  const [fileUrl, setFileURL] = useState("");
-  const [metadataUrl, setMetadataUrl] = useState("null");
-  const [formInput, updateFormInput] = useState({ name: "", symbol: "" });
   const [wallet, setWallet] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [storageWallet, setStorageWallet] = useState(null);
   const [nfts, setNFT] = useState([{}]);
   const [price, setPrice] = useState(null);
   const sold = [];
@@ -49,7 +45,6 @@ export default function getMarketplace() {
   }
 
   async function createItem(nftid) {
-    const { name, symbol } = formInput;
     const Tezos = new TezosToolkit(config.rpc);
     const options = {
       name: "Blocky",
@@ -99,7 +94,7 @@ export default function getMarketplace() {
               <p className='text-2xl mb-4 font-bold text-white'> {nft.name} </p>
               <p className='text-2xl mb-4 font-bold text-white'> {nft.symbol} </p>
               <p className='text-2xl mb-4 font-bold text-white'><img src={nft.image} className="rounded" width="250px" height="250px"/></p>
-              <button className='w-full bg-pink-500 text-white font-bold py-2 px-12 rounded' onClick={() => createItem(0)}>Buy</button>
+              <button className='w-full bg-pink-500 text-white font-bold py-2 px-12 rounded' onClick={() => createItem(sold.length)}>Buy</button>
             </div>
           </div>
         ))}

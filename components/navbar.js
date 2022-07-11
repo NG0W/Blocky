@@ -7,8 +7,8 @@ export default function Navbar({}) {
             <li id="marketplace">
               <a href="./marketplace">Marketplace</a>
             </li>
-            <li id="collection">
-              <a href="./users">Users</a>
+            <li id="sales">
+              <a href="./sales">Sales</a>
             </li>
             <li id="newnft">
               <a href="./newnft">New NFT</a>
@@ -16,8 +16,8 @@ export default function Navbar({}) {
             <li id="getnft">
               <a href="./getnft">Get NFT</a>
             </li>
-            <li id="wallet">
-              <a href="./#">Wallet</a>
+            <li id="users">
+              <a href="./users">Users</a>
             </li>
           </ul>
         </span>

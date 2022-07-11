@@ -49,7 +49,6 @@ export default function getMarketplace() {
   }
 
   async function createItem(nftid) {
-    console.log("here");
     const { name, symbol } = formInput;
     const Tezos = new TezosToolkit(config.rpc);
     const options = {
@@ -99,7 +98,7 @@ export default function getMarketplace() {
             <div>
               <p className='text-2xl mb-4 font-bold text-white'> {nft.name} </p>
               <p className='text-2xl mb-4 font-bold text-white'> {nft.symbol} </p>
-              <p className='text-2xl mb-4 font-bold text-white'><img src={nft.image} className="rounded" width="300px" height="300px"/></p>
+              <p className='text-2xl mb-4 font-bold text-white'><img src={nft.image} className="rounded" width="250px" height="250px"/></p>
               <button className='w-full bg-pink-500 text-white font-bold py-2 px-12 rounded' onClick={() => createItem(0)}>Buy</button>
             </div>
           </div>

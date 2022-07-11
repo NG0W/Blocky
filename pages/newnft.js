@@ -139,11 +139,6 @@ export default function CreateItem() {
         ) : (
           <button onClick={isConnectWallet}>Connect Wallet</button>
         )}{" "}
-        {/* {wallet ? (
-          <button onClick={createSale}>Create sale</button>
-        ) : (
-          <button onClick={isConnectWallet}>Connect Wallet</button>
-        )} */}
       </div>
     </div>
   );

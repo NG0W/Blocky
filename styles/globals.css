@@ -58,11 +58,6 @@ a {
   border-radius: 20px;
 }
 
-/* Suppr for all li in the middle */
-.menu li:nth-child(3) {
-  margin-left: auto;
-}
-
 .menu li:hover {
   color: white;
   background-color: var(--purple);
